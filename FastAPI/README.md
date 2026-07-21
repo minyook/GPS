@@ -110,7 +110,7 @@ uvicorn app.main:app --reload --port 8000
 
 ### 1. ngrok 터널 생성 (포트 8000 연결)
 ```bash
-ngrok http 127.0.0.1:8000
+ngrok http 8000
 ```
 - 명령 실행 후 화면의 `https://xxxx-xxxx.ngrok-free.app` 주소를 복사합니다.
 
