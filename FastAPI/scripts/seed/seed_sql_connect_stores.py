@@ -3,7 +3,7 @@ import os
 import uuid
 import csv
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from app.core.sql_connect import get_connection
 from app.core.firebase import init_firebase, get_db
