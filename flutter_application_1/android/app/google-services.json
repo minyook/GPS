@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1066358259020",
+    "project_id": "gps-test-4ccbb",
+    "storage_bucket": "gps-test-4ccbb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066358259020:android:9dd2be975b7017cf60e3e9",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChcBy6PknGpooeTpSw4cCzXRBUKfuXsBg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1066358259020:android:b6fa9d700823335360e3e9",
+        "android_client_info": {
+          "package_name": "com.test.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChcBy6PknGpooeTpSw4cCzXRBUKfuXsBg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

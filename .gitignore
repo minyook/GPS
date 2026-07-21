@@ -1,0 +1,32 @@
+# Python & Virtual Environment
+.venv/
+venv/
+ENV/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Secrets & Environment Variables
+serviceAccountKey.json
+.env
+*.pem
+*.key
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Flutter / Dart
+build/
+.dart_tool/
+.fvm/
+.pub-cache/
+.pub/
+android/.gradle
+android/captures/
+ios/Runner.xcodeproj/project.xcworkspace
+ios/Runner.xcworkspace
