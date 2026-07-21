@@ -236,7 +236,7 @@ class _MainScreenState extends State<MainScreen> {
         setState(() {
           _lastClickedStoreId = storeId;
         });
-        _showDongbaekDialog(storeId, "매장에 일정 시간 체류하셨습니다! 동백전 결제 혜택을 확인해 보세요.");
+        _showDongbaekDialog(storeId, "매장에 일정 시간 방문하셨습니다! 동백전 결제 혜택을 확인해 보세요.");
       }
     }
   }
@@ -249,7 +249,7 @@ class _MainScreenState extends State<MainScreen> {
         title: const Row(
           children: [
             Text("🌺 ", style: TextStyle(fontSize: 22)),
-            Text("동백전 체류 결제 안내",
+            Text("동백전 방문 결제 안내",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ],
         ),
@@ -259,7 +259,7 @@ class _MainScreenState extends State<MainScreen> {
           children: [
             Text(
               message ??
-                  "현재 매장에 장시간 체류 중입니다! 동백전으로 결제하고 캐시백 혜택을 받아보세요.",
+                  "현재 매장에 방문 중입니다! 동백전으로 결제하고 캐시백 혜택을 받아보세요.",
               style: const TextStyle(fontSize: 14),
             ),
             const SizedBox(height: 12),
@@ -271,7 +271,7 @@ class _MainScreenState extends State<MainScreen> {
                 border: Border.all(color: Colors.pink.shade200),
               ),
               child: Text(
-                "📍 체류 매장 ID: $storeId",
+                "📍 방문 매장 ID: $storeId",
                 style: const TextStyle(
                     fontWeight: FontWeight.bold, color: Colors.pink),
               ),
@@ -381,9 +381,9 @@ class _MainScreenState extends State<MainScreen> {
                 onPressed: () {
                   Navigator.pop(context);
                   _showDongbaekDialog(
-                      store.id, "${store.name} 체류 중입니다! 동백전으로 결제하고 혜택을 받아보세요.");
+                      store.id, "${store.name} 방문 중입니다! 동백전으로 결제하고 혜택을 받아보세요.");
                 },
-                child: const Text("동백전 체류 결제 테스트 시뮬레이션"),
+                child: const Text("동백전 방문 결제 테스트 시뮬레이션"),
               ),
             ),
           ],
@@ -529,7 +529,7 @@ class _MainScreenState extends State<MainScreen> {
         title: const Row(
           children: [
             Text("🌺 ", style: TextStyle(fontSize: 20)),
-            Text("동백전 가맹점 체류 지도",
+            Text("동백전 가맹점 방문 지도",
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           ],
         ),
@@ -538,7 +538,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       body: Column(
         children: [
-          // 1. 체류 감지 상태 표시 카드
+          // 1. 방문 확인 상태 표시 카드
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             color: _isServiceRunning ? Colors.pink[50] : Colors.grey[100],
@@ -557,8 +557,8 @@ class _MainScreenState extends State<MainScreen> {
                     children: [
                       Text(
                         _isServiceRunning
-                            ? "📍 매장 체류 감지 작동 중 (30초 테스트)"
-                            : "⏸️ 체류 감지 중지됨",
+                            ? "📍 매장 방문 확인 작동 중 (30초 테스트)"
+                            : "⏸️ 방문 확인 중지됨",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: _isServiceRunning

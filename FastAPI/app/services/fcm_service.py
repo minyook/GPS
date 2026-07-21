@@ -9,9 +9,9 @@ logger = logging.getLogger("app.services.fcm_service")
 
 class FCMService:
     @staticmethod
-    async def process_and_send_stay_notification(user_id: str, store_id: str, store_name: str, has_stamp_event: bool):
+    async def process_and_send_visit_notification(user_id: str, store_id: str, store_name: str, has_stamp_event: bool):
         """
-        체류 확정 유저 대상 마케팅 락 체크 및 FCM 알림 발송 처리
+        방문 확정 유저 대상 마케팅 락 체크 및 FCM 알림 발송 처리
         """
         if not has_stamp_event:
             logger.info(f"[FCM Skipped] Store '{store_id}' does not have stamp event enabled.")
@@ -90,7 +90,7 @@ class FCMService:
 
             # 3. FCM 메시지 구성 및 발송 (가맹점 위치 알림 및 동백전 스탬프 혜택)
             title = f"💳 {store_name} (동백전 가맹점)"
-            body = f"현재 {store_name} 가맹점 안에 계십니다! 동백전으로 결제하고 스탬프를 적립해 보세요 🎁"
+            body = f"현재 {store_name} 가맹점에 방문 중입니다! 동백전으로 결제하고 스탬프를 적립해 보세요 🎁"
             
             message = messaging.Message(
                 notification=messaging.Notification(

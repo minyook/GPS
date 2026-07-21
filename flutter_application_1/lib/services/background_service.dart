@@ -166,12 +166,12 @@ void callbackDispatcher() {
       await initLocalNotifications();
       await flutterLocalNotificationsPlugin.show(
         DateTime.now().millisecond,
-        '📍 [동백전 System Alarm] 체류 감지 안내',
-        '현재 내 위치 50m 이내 매장에 체류 중입니다! 동백전으로 결제하고 혜택을 받으세요!',
+        '📍 [동백전 System Alarm] 방문 확인 안내',
+        '현재 내 위치 50m 이내 매장에 방문 중입니다! 동백전으로 결제하고 혜택을 받으세요!',
         NotificationDetails(
           android: AndroidNotificationDetails(
             'high_importance_channel',
-            '체류 결제 알림 채널',
+            '방문 결제 알림 채널',
             importance: Importance.max,
             priority: Priority.high,
           ),

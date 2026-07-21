@@ -39,7 +39,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '동백전 체류 판정 테스트',
+      title: '동백전 방문 확인 테스트',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,

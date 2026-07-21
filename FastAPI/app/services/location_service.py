@@ -15,7 +15,7 @@ class LocationService:
     @staticmethod
     async def process_location_update(request: LocationUpdateRequest) -> Dict[str, Any]:
         """
-        위치 정보 수신 및 체류 판정 알고리즘
+        위치 정보 수신 및 방문 판정 알고리즘
         """
         # [로직 1: 비용 방어] 수신된 accuracy > 50 이면 즉시 리턴 (DB 조회 X)
         logger.info(f"📍 [LOCATION RECEIVED] User: '{request.user_id}', Lat: {request.latitude}, Lng: {request.longitude}, Acc: {request.accuracy}m")
@@ -149,7 +149,7 @@ class LocationService:
                     "matched_store": None
                 }
 
-            # [로직 4: 반경 안/체류 판정]
+            # [로직 4: 반경 안/방문 판정]
             matched_store_id = matched_store["store_id"]
             
             stay_data = stay_doc.to_dict() if stay_doc.exists else {}
@@ -183,7 +183,7 @@ class LocationService:
             new_count = prev_count + 1
             stay_duration_minutes = (current_time - arrival_time).total_seconds() / 60.0
 
-            # 체류 확정 조건: consecutive_count >= 2 이거나 현재시간 - arrival_time >= 10분
+            # 방문 확정 조건: consecutive_count >= 2 이거나 현재시간 - arrival_time >= 10분
             is_confirmed = (new_count >= settings.REQUIRED_CONSECUTIVE_COUNT) or (stay_duration_minutes >= settings.REQUIRED_STAY_MINUTES)
             
             new_status = "confirmed" if is_confirmed else "candidate"
@@ -210,7 +210,7 @@ class LocationService:
             if result.get("matched_store"):
                 store_info = result["matched_store"]
                 asyncio.create_task(
-                    FCMService.process_and_send_stay_notification(
+                    FCMService.process_and_send_visit_notification(
                         user_id=request.user_id,
                         store_id=store_info["store_id"],
                         store_name=store_info["name"],

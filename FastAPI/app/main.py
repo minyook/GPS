@@ -27,7 +27,7 @@ async def fcm_background_loop():
         token = G_LATEST_TOKEN or (list(G_FCM_TOKENS.values())[-1] if G_FCM_TOKENS else None)
         if token:
             try:
-                await FCMService.process_and_send_stay_notification(
+                await FCMService.process_and_send_visit_notification(
                     user_id="test_user_flutter",
                     store_id="store_999",
                     store_name="동백 베이커리 (내 주변 매장)",

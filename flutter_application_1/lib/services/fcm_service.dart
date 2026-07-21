@@ -7,10 +7,11 @@ import '../firebase_options.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
+// 설명 보완
 const AndroidNotificationChannel notificationChannel = AndroidNotificationChannel(
   'high_importance_channel',
   '동백전 가맹점 알림 채널',
-  description: '매장 체류 판정 및 동백전 결제 유도 푸시 알림에 사용됩니다.',
+  description: '매장 방문 확인 및 동백전 결제 유도 푸시 알림에 사용됩니다.',
   importance: Importance.high,
 );
 
@@ -38,7 +39,7 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
   if (message.data.containsKey('store_id')) {
     debugPrint(
-        "[FCM Background] 🌺 동백전 체류 매장 감지 (store_id): ${message.data['store_id']}");
+        "[FCM Background] 🌺 동백전 방문 매장 감지 (store_id): ${message.data['store_id']}");
   }
 }
 

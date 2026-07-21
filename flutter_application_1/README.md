@@ -1,6 +1,6 @@
-# 🌺 동백전 위치 체류 수집 및 FCM 알림 통신 가이드 (README)
+# 🌺 동백전 위치 방문 확인 및 FCM 알림 통신 가이드 (README)
 
-이 문서는 플러터(Flutter) 클라이언트와 FastAPI 백엔드 간에 화면(UI) 없이 **"실시간 위치 수집 ➡️ 백엔드 전송 ➡️ 체류 판정 ➡️ FCM 푸시 알림 발송"**만 핵심 모듈로 떼어내서 개발할 때 참고하는 개발 가이드라인입니다.
+이 문서는 플러터(Flutter) 클라이언트와 FastAPI 백엔드 간에 화면(UI) 없이 **"실시간 위치 수집 ➡️ 백엔드 전송 ➡️ 방문 확인 ➡️ FCM 푸시 알림 발송"**만 핵심 모듈로 떼어내서 개발할 때 참고하는 개발 가이드라인입니다.
 
 ---
 
@@ -29,36 +29,46 @@
 
 ## 🖥️ 2. FastAPI 백엔드 (FastAPI) - 수신 & 푸시 전송 핵심 모듈
 
-수신된 데이터 기반으로 체류를 판단하여 구글 파이어베이스 서버로 알림을 쏘는 핵심 파일 및 함수 구조입니다.
+수신된 데이터 기반으로 방문을 판단하여 구글 파이어베이스 서버로 알림을 쏘는 핵심 파일 및 함수 구조입니다.
 
 ### ① FCM 토큰 관리 서비스
 - **위치**: `app/services/user_service.py`
 - **핵심 함수**:
   - `register_fcm_token()`: 클라이언트로부터 전달받은 FCM 토큰을 메모리 캐시(`G_FCM_TOKENS`) 및 DB에 등록
 
-### ② 위치 정보 수신 및 체류 판단
+### ② 위치 정보 수신 및 방문 판단
 - **위치**: `app/services/location_service.py`
 - **핵심 함수**:
-  - `process_location_update()`: 30초마다 전송된 GPS 좌표를 수신하여 가맹점 반경(50m) 내 체류 여부를 연산하고 FCM 발송 트리거 호출
+  - `process_location_update()`: 30초마다 전송된 GPS 좌표를 수신하여 가맹점 반경(50m) 내 방문 여부를 연산하고 FCM 발송 트리거 호출
 
 ### ③ FCM 푸시 알림 실제 발송 (Firebase Admin SDK)
 - **위치**: `app/services/fcm_service.py`
 - **핵심 함수**:
-  - `process_and_send_stay_notification()`: `firebase_admin.messaging.send(message)`를 직접 사용하여 사용자의 폰 상단으로 진짜 동백전 팝업 푸시 알림을 즉시 발송
+  - `process_and_send_visit_notification()`: `firebase_admin.messaging.send(message)`를 직접 사용하여 사용자의 폰 상단으로 진짜 동백전 팝업 푸시 알림을 즉시 발송
 
 ---
 
-## 🔗 3. 클라이언트 ↔ 서버 API 데이터 통신 규격
+## 🛠️ 3. 💡 앱 화면(UI) 없이 백그라운드 수집 통신 구조만 떼어내서 쓰는 방법
+
+나중에 실제 상용 앱에 탑재할 때는 지도나 UI 화면을 다 빼고, 앱이 실행될 때 백그라운드 데몬(Daemon)으로만 가동되게 분리할 수 있습니다.
+
+1. **화면(UI) 의존성 완전 제거**:
+   - `lib/screens/main_screen.dart`는 필요하지 않으므로 삭제합니다.
+   
+2. **앱 진입 시 백그라운드 서비스 즉시 가동**:
+   - `lib/main.dart`의 `main()` 함수에서 `initializeBackgroundService()`를 호출한 뒤, 아래와 같이 포어그라운드 스위치 없이 백그라운드 서비스를 자동 시작합니다:
+     ```dart
+     // background_service.dart에서 autoStart를 true로 지정하거나 즉시 서비스 시작 호출
+     await FlutterBackgroundService().startService();
+     ```
+   - 사용자에게는 빈 UI(`SizedBox.shrink()` 또는 기존 홈 화면)만 띄워둔 채, 앱 프로세스 내부에서는 30초마다 GPS를 측정하여 서버로 자동 쏘아주게 됩니다.
+
+---
+
+## 🔗 4. 클라이언트 ↔ 서버 API 데이터 통신 규격
 
 ### 1) FCM 토큰 등록 API (POST)
 - **Endpoint**: `POST /api/user/fcm-token`
-- **Request Header**:
-  ```json
-  {
-    "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "69420"
-  }
-  ```
 - **Request Body**:
   ```json
   {
@@ -69,13 +79,6 @@
 
 ### 2) 위치 정보 전송 API (POST)
 - **Endpoint**: `POST /api/location`
-- **Request Header**:
-  ```json
-  {
-    "Content-Type": "application/json",
-    "ngrok-skip-browser-warning": "69420"
-  }
-  ```
 - **Request Body**:
   ```json
   {
@@ -92,7 +95,7 @@
   {
     "notification": {
       "title": "💳 [가맹점명] (동백전 가맹점)",
-      "body": "[가맹점명]은(는) 동백전 가맹점입니다! 동백전으로 결제하고 스탬프도 적립하세요 🎁"
+      "body": "현재 [가맹점명] 가맹점에 방문 중입니다! 동백전으로 결제하고 스탬프를 적립해 보세요 🎁"
     },
     "data": {
       "store_id": "store_999",
