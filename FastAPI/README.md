@@ -104,6 +104,32 @@ uvicorn app.main:app --reload --port 8000
 
 ---
 
+## 🌐 ngrok 외부 접속 터널링 가이드 (모바일/Flutter 연동)
+
+로컬에서 구동 중인 FastAPI 서버(`127.0.0.1:8000`)를 스마트폰 실기기나 에뮬레이터(Flutter)와 연동하기 위해 **ngrok 포트 터널링 및 차단 우회 설정 명령어**입니다.
+
+### 1. ngrok 터널 생성 (포트 8000 연결)
+```bash
+ngrok http 127.0.0.1:8000
+```
+- 명령 실행 후 화면의 `https://xxxx-xxxx.ngrok-free.app` 주소를 복사합니다.
+
+### 2. Flutter 앱 HTTP Header 필수 우회 설정
+ngrok 무료 플랜 특성상 최초 호출 시 HTML 차단 경고(`ngrok-skip-browser-warning`) 페이지가 수신되어 `8012 Connection Refused` 오류가 발생하므로, **Flutter HTTP 요청 헤더에 아래 키-값 필수 추가**:
+
+```dart
+final response = await http.post(
+  Uri.parse('https://xxxx-xxxx.ngrok-free.app/api/location'),
+  headers: {
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true', // ngrok 경고 페이지 우회 필수 헤더
+  },
+  body: jsonEncode(payload),
+);
+```
+
+---
+
 ## 📡 주요 API 명세
 
 ### 1. 위치 정보 수신 및 체류 판정 API
