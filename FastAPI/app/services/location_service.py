@@ -176,7 +176,8 @@ class LocationService:
                 return {
                     "status": initial_status,
                     "consecutive_count": 1,
-                    "matched_store": matched_store
+                    "matched_store": matched_store,
+                    "is_newly_confirmed": is_confirmed
                 }
 
             # 동일 매장에 연속 진입하는 경우 (5분 뒤 다시 호출됨)
@@ -206,8 +207,8 @@ class LocationService:
         try:
             result = await asyncio.to_thread(_process_location)
             
-            # 매장이 매칭된 경우 무조건 FCM 푸시 알림 발송 시도
-            if result.get("matched_store"):
+            # 방문이 확정(Confirmed)된 경우에만 최초 1회 FCM 푸시 알림 발송
+            if result.get("is_newly_confirmed") and result.get("matched_store"):
                 store_info = result["matched_store"]
                 asyncio.create_task(
                     FCMService.process_and_send_visit_notification(
