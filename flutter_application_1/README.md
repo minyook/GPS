@@ -8,22 +8,22 @@
 
 화면 없이 백그라운드 수집과 알림 수신만 처리할 때 사용하는 핵심 파일 및 함수 구조입니다.
 
-### ① 알림 초기화 및 수신 핸들러
-- **위치**: `lib/services/fcm_service.dart`
+### ① 알림 초기화 및 수신 채널 설정
+- **위치**: [lib/services/fcm_service.dart](file:///c:/flutter/flutter_application_1/lib/services/fcm_service.dart)
 - **핵심 함수**:
   - `initLocalNotifications()`: 폰 상단 헤드업 알림을 띄우기 위한 채널 설정 및 초기화
   - `firebaseMessagingBackgroundHandler()`: 앱이 꺼져 있거나 백그라운드일 때 수신된 FCM 푸시 알림 처리
 
 ### ② 백그라운드 위치 측정 및 서버 전송 (30초 주기)
-- **위치**: `lib/services/background_service.dart`
+- **위치**: [lib/services/background_service.dart](file:///c:/flutter/flutter_application_1/lib/services/background_service.dart)
 - **핵심 함수**:
   - `performLocationCheck()`: 30초마다 실제 GPS를 측정하여 백엔드 `POST /api/location`으로 HTTP POST 요청 발송
   - `initializeBackgroundService()`: 안드로이드 포어그라운드 서비스 및 무음 채널(`silent_background_channel`) 설정
 
-### ③ 디바이스 FCM 토큰 백엔드 등록
-- **위치**: `lib/screens/main_screen.dart`
-- **핵심 함수**:
-  - `_registerFcmTokenToServer(String token)`: 스마트폰의 고유 FCM 푸시 토큰 주소를 백엔드 `POST /api/user/fcm-token`으로 등록하는 통신 함수
+### ③ 디바이스 FCM 토큰 백엔드 등록 및 리스너 연결 (통신 전용 통합 모듈 ⭐)
+- **위치**: [lib/services/fcm_setup_helper.dart](file:///c:/flutter/flutter_application_1/lib/services/fcm_setup_helper.dart)
+- **핵심 클래스**: `FcmSetupHelper`
+  - `setupFcm()`: 기기 FCM 권한 획득, 토큰 획득 및 갱신 리스너 등록, Foreground 수신 팝업 노출, 클릭 핸들링 통합 구동
 
 ---
 
@@ -52,16 +52,28 @@
 
 나중에 실제 상용 앱에 탑재할 때는 지도나 UI 화면을 다 빼고, 앱이 실행될 때 백그라운드 데몬(Daemon)으로만 가동되게 분리할 수 있습니다.
 
-1. **화면(UI) 의존성 완전 제거**:
-   - `lib/screens/main_screen.dart`는 필요하지 않으므로 삭제합니다.
+### 1) 화면(UI) 의존성 완전 제거
+- `lib/screens/main_screen.dart`는 필요하지 않으므로 삭제합니다.
    
-2. **앱 진입 시 백그라운드 서비스 즉시 가동**:
-   - `lib/main.dart`의 `main()` 함수에서 `initializeBackgroundService()`를 호출한 뒤, 아래와 같이 포어그라운드 스위치 없이 백그라운드 서비스를 자동 시작합니다:
-     ```dart
-     // background_service.dart에서 autoStart를 true로 지정하거나 즉시 서비스 시작 호출
-     await FlutterBackgroundService().startService();
-     ```
-   - 사용자에게는 빈 UI(`SizedBox.shrink()` 또는 기존 홈 화면)만 띄워둔 채, 앱 프로세스 내부에서는 30초마다 GPS를 측정하여 서버로 자동 쏘아주게 됩니다.
+### 2) 백그라운드 서비스 및 FCM 헬퍼 결합 가동
+- `lib/main.dart`의 `main()` 함수에서 아래와 같이 포어그라운드 스위치 없이 백그라운드 서비스와 FCM 헬퍼를 즉시 자동 시작합니다:
+  ```dart
+  void main() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp(); // Firebase 초기화
+    
+    await initLocalNotifications(); // 로컬 알림 초기화
+    
+    // 1. FCM 디바이스 토큰 자동 획득 및 백엔드 등록 & 리스너 가동
+    await FcmSetupHelper.setupFcm(); 
+    
+    // 2. 백그라운드 30초 수집 서비스 자동 시작
+    await initializeBackgroundService();
+    await FlutterBackgroundService().startService(); 
+    
+    runApp(const MyApp());
+  }
+  ```
 
 ---
 
