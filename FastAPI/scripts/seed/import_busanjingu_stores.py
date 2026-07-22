@@ -11,7 +11,8 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from firebase_admin import firestore
 from app.core.firebase import init_firebase, get_db
 
-CSV_PATH = r"D:\GPS_TEST\FastAPI\부산광역시_지역화폐(동백전) 가맹점 현황_20260424.csv"
+script_dir = os.path.dirname(os.path.abspath(__file__))
+CSV_PATH = os.path.abspath(os.path.join(script_dir, "..", "..", "부산광역시_지역화폐(동백전) 가맹점 현황_20260424.csv"))
 
 def run_import():
     init_firebase()

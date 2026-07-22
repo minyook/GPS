@@ -13,7 +13,10 @@ INSTANCE_CONNECTION_NAME = "gps-test-4ccbb:asia-northeast3:gps-test-4ccbb-instan
 DB_NAME = "gps-test-4ccbb-database"
 DB_USER = "postgres"
 DB_PASS = "123456"  # Cloud Shell로 설정한 비밀번호
-CREDENTIALS_FILE = r"D:\GPS_TEST\FastAPI\serviceAccountKey.json"
+
+from app.core.config import settings
+script_dir = os.path.dirname(os.path.abspath(__file__))
+CREDENTIALS_FILE = os.path.abspath(os.path.join(script_dir, "..", "..", settings.FIREBASE_CREDENTIALS_PATH))
 
 connector = None
 
