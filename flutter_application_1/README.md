@@ -116,3 +116,79 @@
     }
   }
   ```
+
+---
+
+## 🛠️ 5. 🚀 기존 상용 프로젝트에 이 기능을 이식(합칠)할 때의 필수 4단계 체크리스트
+
+나중에 본인의 기존 Flutter 프로젝트에 이 방문 수집 & FCM 알림 통신 시스템을 안전하게 이식하기 위해 꼭 가져가야 하는 필수 설정 가이드입니다.
+
+### 1단계: 패키지 의존성 이식 (`pubspec.yaml`)
+기존 프로젝트의 `pubspec.yaml` 파일에 아래 패키지들을 그대로 추가합니다:
+```yaml
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0                       # 백엔드 API 통신용
+  geolocator: ^11.0.0                 # 실시간 GPS 센서 좌표 획득용
+  firebase_core: ^2.27.0              # 파이어베이스 코어
+  firebase_messaging: ^14.7.19        # FCM 푸시 알림 연동용
+  flutter_local_notifications: ^17.0.0 # 상단 헤드업 푸시 팝업 노출용
+  flutter_background_service: ^5.0.9  # 30초 백그라운드 수집 유지용
+  workmanager: ^0.9.0                 # 앱이 꺼졌을 때 OS 예약 수집용
+  permission_handler: ^11.3.0         # GPS '항상 허용' 권한 요청용
+```
+
+### 2단계: 안드로이드 네이티브 권한 및 컴포넌트 이식 (`AndroidManifest.xml`)
+안드로이드의 백그라운드 백터 서비스 유지를 위해 기존 프로젝트의 `android/app/src/main/AndroidManifest.xml`에 아래 퍼미션과 컴포넌트 설정을 복사해 넣습니다:
+- **필수 권한 (Manifest 상단)**:
+  ```xml
+  <uses-permission android:name="android.permission.INTERNET" />
+  <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+  <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+  <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+  <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+  <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+  ```
+- **백그라운드 수집 서비스 및 부팅 리시버 등록 (`<application>` 태그 내부)**:
+  ```xml
+  <service
+      android:name="id.flutter.flutter_background_service.BackgroundService"
+      android:foregroundServiceType="location"
+      android:enabled="true"
+      android:exported="true" />
+
+  <receiver
+      android:name="id.flutter.flutter_background_service.BootReceiver"
+      android:enabled="true"
+      android:exported="true">
+      <intent-filter>
+          <action android:name="android.intent.action.BOOT_COMPLETED" />
+          <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+      </intent-filter>
+  </receiver>
+  ```
+
+### 3단계: 안드로이드 SDK 빌드 버전 상향 (`android/app/build.gradle.kts`)
+최신 안드로이드 백그라운드 위치 서비스 동작 보장을 위해 기존 프로젝트 빌드 타겟 버전을 상향 조정합니다:
+- **수정 위치**: `android/app/build.gradle.kts`
+  ```kotlin
+  android {
+      compileSdk = 36 // compileSdk 버전을 36 이상으로 변경
+      defaultConfig {
+          minSdk = 23
+          targetSdk = 35 // targetSdk 버전을 35 이상으로 변경
+      }
+  }
+  ```
+
+### 4단계: 파이어베이스 설정 및 파일 주입
+- 기존 프로젝트의 `android/app/` 폴더 내부에 본인 파이어베이스 프로젝트에서 발급한 **`google-services.json`** 파일을 배치합니다.
+- `lib/firebase_options.dart` 파일을 복사해 넣어 파이어베이스 초기화가 가능하도록 구성합니다.
+- 이식이 끝났으면 `lib/services/` 폴더 아래에 생성해 둔 아래 3개 파일만 복사해서 붙여넣으시면 됩니다.
+  1. `fcm_service.dart` (알림 채널)
+  2. `background_service.dart` (위치 수집)
+  3. `fcm_setup_helper.dart` (통합 연동 API 헬퍼)
