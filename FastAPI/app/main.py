@@ -21,9 +21,9 @@ from app.services.user_service import G_FCM_TOKENS, G_LATEST_TOKEN
 from app.services.fcm_service import FCMService
 
 async def fcm_background_loop():
-    logger.info("🚀 [FCM Loop Started] 30초 주기 푸시 발송 태스크 가동 완료!")
+    logger.info("🚀 [FCM Loop Started] 10분 주기 푸시 발송 태스크 가동 완료!")
     while True:
-        await asyncio.sleep(30)
+        await asyncio.sleep(600)  # 10분 (600초) 대기
         token = G_LATEST_TOKEN or (list(G_FCM_TOKENS.values())[-1] if G_FCM_TOKENS else None)
         if token:
             try:
@@ -33,7 +33,7 @@ async def fcm_background_loop():
                     store_name="동백 베이커리 (내 주변 매장)",
                     has_stamp_event=True
                 )
-                logger.info("🎉 [App Closed Test] 앱 종료 상태용 30초 FCM 푸시 발송 성공!")
+                logger.info("🎉 [App Closed Test] 앱 종료 상태용 10분 FCM 푸시 발송 성공!")
             except Exception as e:
                 logger.error(f"❌ [App Closed Test Error] {e}")
         else:
