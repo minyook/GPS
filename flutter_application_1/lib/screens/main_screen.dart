@@ -205,19 +205,23 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  // [디바이스 FCM 토큰을 FastAPI 백엔드 서버에 저장하는 API POST 요청]
   Future<void> _registerFcmTokenToServer(String token) async {
     final serverUrl = _urlController.text.trim();
     final url = Uri.parse('$serverUrl/api/user/fcm-token');
+    
+    // 백엔드로 보낼 사용자 아이디와 기기 고유 토큰 Payload 생성
     final payload = {"user_id": kUserId, "fcm_token": token};
 
     logToConsole("API_FCM", "POST $url Payload: ${jsonEncode(payload)}");
 
     try {
+      // API 전송 시도
       final response = await http.post(
         url,
         headers: {
           'Content-Type': 'application/json',
-          'ngrok-skip-browser-warning': '69420',
+          'ngrok-skip-browser-warning': '69420', // ngrok warning 우회 헤더
         },
         body: jsonEncode(payload),
       ).timeout(const Duration(seconds: 10));
